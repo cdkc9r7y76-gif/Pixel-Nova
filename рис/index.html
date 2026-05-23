@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PixelNova — Донат Minecraft</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/1.0.7/iconify-icon.min.js"></script>
+<style>
+  @font-face {
+    font-family: 'Minecraft';
+    src: url('https://cdn.jsdelivr.net/gh/Sandvelt/MinecraftFont@main/minecraft.woff2') format('woff2');
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+
+  :root {
+    --grass: #5D8C2E;
+    --grass-dark: #4A7224;
+    --dirt: #8B6914;
+    --dirt-dark: #6B4F0E;
+    --stone: #7F7F7F;
+    --stone-dark: #5A5A5A;
+    --diamond: #4AEDD9;
+    --gold: #FCDB05;
+    --emerald: #1DDD46;
+    --redstone: #FF1010;
+    --obsidian: #1B1B2F;
+    --ender: #2D0B52;
+    --netherite: #443A3B;
+    --bg: #0b0c15;
+    --bg2: #151725;
+    --bg-card: #1e2136;
+    --text: #e0e0e0;
+    --text-dim: #8888aa;
+    --accent: #00f0ff;
+    --primary: #7000ff;
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    overflow-x: hidden;
+    background-image: 
+      radial-gradient(circle at 15% 50%, rgba(112, 0, 255, 0.06) 0%, transparent 25%),
+      radial-gradient(circle at 85% 30%, rgba(0, 240, 255, 0.06) 0%, transparent 25%);
+  }
+
+  .mc-btn {
+    font-family: 'Minecraft', 'Inter', monospace;
+    background: var(--stone);
+    border: 3px solid #000;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.4), inset 3px 3px 0 rgba(255,255,255,0.2);
+    color: #fff;
+    padding: 12px 24px;
+    cursor: pointer;
+    font-size: 14px;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    transition: filter 0.1s, transform 0.1s;
+    image-rendering: pixelated;
+    user-select: none;
+    width: 100%;
+    text-align: center;
+    display: block;
+  }
+  .mc-btn:hover { filter: brightness(1.3); }
+  .mc-btn:active {
+    box-shadow: inset 3px 3px 0 rgba(0,0,0,0.4), inset -3px -3px 0 rgba(255,255,255,0.2);
+    transform: translate(1px,1px);
+  }
+  .mc-btn.green { background: var(--grass-dark); }
+  .mc-btn.gold { background: #C8960A; }
+  .mc-btn.diamond { background: #1A8A7D; }
+  .mc-btn.red { background: #A01010; }
+  .mc-btn.accent { background: #0088cc; }
+  .mc-btn.primary { background: var(--primary); }
+
+  /* ---- NAV ---- */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    background: rgba(11,12,21,0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 3px solid var(--primary);
+    padding: 0 24px;
+    height: 64px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .nav-logo {
+    font-family: 'Minecraft', monospace;
+    font-size: 22px;
+    color: var(--accent);
+    text-shadow: 2px 2px 0 #000, 0 0 10px rgba(0,240,255,0.4);
+    display: flex; align-items: center; gap: 10px;
+  }
+  .nav-links { display:flex; gap:6px; align-items:center; }
+  .nav-links a {
+    font-family: 'Minecraft', monospace;
+    color: var(--text);
+    text-decoration: none;
+    font-size: 13px;
+    padding: 8px 16px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid transparent;
+    transition: all 0.2s;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+  }
+  .nav-links a:hover {
+    background: var(--primary);
+    border-color: #000;
+    color:#fff;
+  }
+  .cart-btn {
+    position: relative;
+    background: var(--primary);
+    border: 3px solid #000;
+    color:#fff;
+    padding: 8px 18px;
+    font-family: 'Minecraft', monospace;
+    font-size: 13px;
+    cursor: pointer;
+    text-shadow: 1px 1px 0 rgba(0,0,0,0.6);
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.15);
+    transition: 0.2s;
+  }
+  .cart-btn:hover { filter: brightness(1.2); }
+  .cart-badge {
+    position: absolute; top:-8px; right:-8px;
+    background: var(--redstone);
+    color:#fff;
+    font-size:11px;
+    width:20px; height:20px;
+    display:none; /* Скрыта по умолчанию */
+    align-items:center; justify-content:center;
+    border: 2px solid #000;
+    font-family: 'Minecraft', monospace;
+  }
+  .cart-badge.active { display:flex; }
+
+  .mobile-menu-btn {
+    display:none;
+    background:none; border:none;
+    color:var(--text); font-size:28px; cursor:pointer;
+  }
+
+  /* ---- HERO ---- */
+  .hero {
+    min-height: 100vh;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center;
+    padding: 100px 24px 60px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position:absolute; inset:0; z-index:0;
+    background:
+      linear-gradient(180deg, rgba(11,12,21,0) 0%, var(--bg) 100%),
+      url('https://picsum.photos/seed/space/1920/1080?blur=2') center/cover no-repeat;
+    opacity: 0.4;
+  }
+  .hero-particles {
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+  }
+  .hero-particles .particle {
+    position:absolute;
+    width:8px; height:8px;
+    background: var(--accent);
+    opacity:0.3;
+    animation: floatUp linear infinite;
+  }
+  @keyframes floatUp {
+    0% { transform: translateY(100vh) rotate(0deg); opacity:0; }
+    10% { opacity:0.4; }
+    90% { opacity:0.4; }
+    100% { transform: translateY(-20px) rotate(360deg); opacity:0; }
+  }
+  .hero-content { position:relative; z-index:2; max-width: 800px; }
+  .hero-title {
+    font-family: 'Minecraft', monospace;
+    font-size: clamp(36px, 8vw, 72px);
+    color: var(--accent);
+    text-shadow: 4px 4px 0 #000, 0 0 30px rgba(0,240,255,0.3);
+    margin-bottom: 16px;
+    letter-spacing: 2px;
+  }
+  .hero-title span { color: var(--primary); text-shadow: 4px 4px 0 #000, 0 0 30px rgba(112,0,255,0.3); }
+  .hero-sub {
+    font-family: 'Minecraft', monospace;
+    font-size: clamp(14px, 2.5vw, 20px);
+    color: var(--text-dim);
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 40px;
+    line-height: 1.8;
+  }
+  .hero-sub .ip {
+    display:inline-block;
+    background: var(--obsidian);
+    border: 3px solid var(--accent);
+    padding: 6px 20px;
+    color: var(--accent);
+    margin-top: 10px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .hero-sub .ip:hover { background: var(--ender); }
+  .hero-buttons { display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+  
+  .stats {
+    margin-top: 50px;
+    display: flex;
+    gap: 40px;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 20px;
+    justify-content: center;
+  }
+  .stat-item h4 {
+    font-family: 'Minecraft', monospace;
+    font-size: 1.8rem;
+    color: var(--accent);
+    text-shadow: 2px 2px 0 #000;
+  }
+  .stat-item span {
+    color: var(--text-dim);
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-family: 'Minecraft', monospace;
+  }
+
+  /* ---- SECTION ---- */
+  section { padding: 80px 24px; max-width: 1200px; margin: 0 auto; }
+  .section-title {
+    font-family: 'Minecraft', monospace;
+    font-size: clamp(24px, 5vw, 40px);
+    text-align: center;
+    margin-bottom: 16px;
+    text-shadow: 3px 3px 0 #000;
+  }
+  .section-title .green { color: var(--emerald); }
+  .section-title .gold { color: var(--gold); }
+  .section-title .diamond-c { color: var(--diamond); }
+  .section-title .red { color: var(--redstone); }
+  .section-title .cyan { color: var(--accent); }
+  .section-title .purple { color: var(--primary); }
+
+  .section-sub {
+    text-align: center;
+    color: var(--text-dim);
+    margin-bottom: 48px;
+    font-family: 'Minecraft', monospace;
+    font-size: 14px;
+    text-shadow: 1px 1px 0 #000;
+  }
+
+  .section-line {
+    width: 80px; height: 4px;
+    background: var(--primary);
+    margin: 0 auto 48px;
+    border: 2px solid #000;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.15);
+  }
+
+  /* ---- DONATE CARDS ---- */
+  .donate-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+  }
+  .donate-card {
+    background: var(--bg2);
+    border: 4px solid #000;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), inset 4px 4px 0 rgba(255,255,255,0.08), 0 0 20px rgba(0,0,0,0.5);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+  }
+  .donate-card:hover {
+    transform: translateY(-4px);
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), inset 4px 4px 0 rgba(255,255,255,0.08), 0 8px 30px rgba(112,0,255,0.2);
+  }
+  .donate-card .card-top {
+    height: 8px;
+    border-bottom: 3px solid #000;
+  }
+  .donate-card .card-top.vip { background: var(--grass); }
+  .donate-card .card-top.premium { background: var(--diamond); }
+  .donate-card .card-top.elite { background: var(--gold); }
+  .donate-card .card-top.legend { background: #ffd700; }
+  .donate-card .card-top.ultimate { background: #ff00ea; }
+
+  .card-icon {
+    width: 80px; height: 80px;
+    margin: 24px auto 16px;
+    image-rendering: pixelated;
+    display:flex; align-items:center; justify-content:center;
+    font-size:48px;
+  }
+  .card-rank {
+    font-family: 'Minecraft', monospace;
+    font-size: 20px;
+    text-align: center;
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 8px;
+  }
+  .card-tag {
+    display: block;
+    text-align: center;
+    font-family: 'Minecraft', monospace;
+    font-size: 11px;
+    margin-bottom: 12px;
+    padding: 4px 12px;
+    background: rgba(255,255,255,0.05);
+    border: 2px solid #000;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .card-price {
+    font-family: 'Minecraft', monospace;
+    font-size: 28px;
+    text-align: center;
+    color: var(--gold);
+    text-shadow: 2px 2px 0 #000;
+    margin-bottom: 16px;
+  }
+  .card-price span { font-size:14px; color:var(--text-dim); }
+  .card-perks {
+    list-style: none;
+    padding: 0 20px 20px;
+    border-top: 2px solid rgba(255,255,255,0.05);
+    padding-top: 16px;
+    flex-grow: 1;
+  }
+  .card-perks li {
+    font-size: 13px;
+    padding: 6px 0;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text-dim);
+    border-bottom: 1px solid rgba(255,255,255,0.03);
+  }
+  .card-perks li iconify-icon { color: var(--emerald); font-size:14px; flex-shrink:0; }
+  .card-buy {
+    display: block;
+    width: calc(100% - 32px);
+    margin: 0 16px 20px;
+    text-align: center;
+  }
+
+  /* Featured Card */
+  .donate-card.featured {
+    border-color: #ffd700;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.3), inset 4px 4px 0 rgba(255,255,255,0.08), 0 0 25px rgba(255,215,0,0.2);
+  }
+
+  /* ---- REVIEWS ---- */
+  .reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 20px;
+  }
+  .review-card {
+    background: var(--bg2);
+    border: 3px solid #000;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.3), inset 3px 3px 0 rgba(255,255,255,0.08);
+    padding: 24px;
+    transition: transform 0.2s;
+  }
+  .review-card:hover { transform: translateY(-2px); }
+  .review-header {
+    display:flex; align-items:center; gap:12px; margin-bottom:12px;
+  }
+  .review-avatar {
+    width:40px; height:40px;
+    image-rendering: pixelated;
+    display:flex; align-items:center; justify-content:center;
+    font-size:24px;
+    border: 2px solid #000;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3);
+  }
+  .review-avatar.steve { background:#4682B4; }
+  .review-avatar.alex { background:#5D8C2E; }
+  .review-avatar.zombie { background:#2D5A27; }
+  .review-avatar.enderman { background:#1B1B2F; }
+  .review-avatar.creeper { background:#3A7A20; }
+  .review-avatar.skeleton { background:#C8C8C8; }
+  .review-name {
+    font-family: 'Minecraft', monospace;
+    font-size:14px;
+    text-shadow: 1px 1px 0 #000;
+  }
+  .review-rank {
+    font-size:11px;
+    padding:2px 8px;
+    border:2px solid #000;
+    font-family:'Minecraft',monospace;
+    text-shadow:1px 1px 0 #000;
+  }
+  .review-rank.vip { background:var(--grass-dark); color:#fff; }
+  .review-rank.premium { background:#1A8A7D; color:#fff; }
+  .review-rank.elite { background:#C8960A; color:#fff; }
+  .review-rank.legend { background:#ffd700; color:#000; }
+  .review-stars { color: var(--gold); font-size:14px; margin-bottom:8px; text-shadow:1px 1px 0 #000; }
+  .review-text {
+    font-size:13px; color:var(--text-dim); line-height:1.7;
+    font-style:italic;
+    border-left: 3px solid var(--primary);
+    padding-left:12px;
+  }
+  .review-date { font-size:11px; color:var(--stone); margin-top:10px; text-align:right; }
+
+  /* ---- SUPPORT ---- */
+  .support-grid {
+    display:grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px,1fr));
+    gap:20px;
+  }
+  .support-card {
+    background: var(--bg2);
+    border: 3px solid #000;
+    box-shadow: inset -3px -3px 0 rgba(0,0,0,0.3), inset 3px 3px 0 rgba(255,255,255,0.08);
+    padding: 28px;
+    text-align:center;
+    transition: transform 0.2s;
+  }
+  .support-card:hover { transform: translateY(-3px); }
+  .support-icon {
+    width:56px; height:56px;
+    margin: 0 auto 16px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:32px;
+    border:3px solid #000;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.15);
+  }
+  .support-icon.phone { background: var(--grass-dark); }
+  .support-icon.vk { background: #0077FF; }
+  .support-icon.tg { background: #0088cc; }
+  .support-icon.dc { background: #5865F2; }
+  .support-label {
+    font-family:'Minecraft',monospace;
+    font-size:14px;
+    margin-bottom:6px;
+    text-shadow:1px 1px 0 #000;
+  }
+  .support-value {
+    font-family:'Minecraft',monospace;
+    font-size:13px;
+    color:var(--accent);
+    text-shadow:1px 1px 0 #000;
+    word-break:break-all;
+  }
+  .support-value a { color:var(--accent); text-decoration:none; }
+  .support-value a:hover { text-decoration:underline; }
+
+  /* ---- CART SIDEBAR ---- */
+  .cart-overlay {
+    position:fixed; inset:0; z-index:200;
+    background:rgba(0,0,0,0.7);
+    display:block;
+    opacity:0;
+    visibility:hidden;
+    transition: opacity 0.3s, visibility 0.3s;
+  }
+  .cart-overlay.open { opacity:1; visibility:visible; }
+  
+  .cart-sidebar {
+    position:fixed; top:0; right:0; z-index:201;
+    width:400px; max-width:90vw;
+    height:100vh;
+    background: var(--bg2);
+    border-left: 4px solid var(--primary);
+    box-shadow: -8px 0 30px rgba(0,0,0,0.5);
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    display:flex; flex-direction:column;
+  }
+  .cart-sidebar.open { transform: translateX(0); }
+  
+  .cart-header {
+    padding:20px;
+    border-bottom:3px solid #000;
+    display:flex; align-items:center; justify-content:space-between;
+    background: var(--obsidian);
+  }
+  .cart-header h3 {
+    font-family:'Minecraft',monospace;
+    font-size:18px;
+    color:var(--accent);
+    text-shadow:2px 2px 0 #000;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .cart-close {
+    background:none; border:none;
+    color:var(--text); font-size:24px; cursor:pointer;
+    transition: 0.3s;
+  }
+  .cart-close:hover { color:var(--redstone); transform: rotate(90deg); }
+  
+  .cart-items {
+    flex:1; overflow-y:auto; padding:16px;
+  }
+  .cart-empty {
+    text-align:center; padding:40px 20px;
+    font-family:'Minecraft',monospace;
+    color:var(--text-dim);
+    text-shadow:1px 1px 0 #000;
+    font-size:14px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  .cart-empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
+  
+  .cart-item {
+    background: var(--bg-card);
+    border: 2px solid #000;
+    padding:14px;
+    margin-bottom:10px;
+    display:flex; align-items:center; justify-content:space-between;
+    transition: 0.2s;
+  }
+  .cart-item:hover { border-color: var(--primary); }
+  
+  .cart-item-info {
+    font-family:'Minecraft',monospace;
+    font-size:13px;
+    text-shadow:1px 1px 0 #000;
+  }
+  .cart-item-price {
+    color:var(--gold);
+    font-family:'Minecraft',monospace;
+    font-size:14px;
+    text-shadow:1px 1px 0 #000;
+  }
+  .cart-item-remove {
+    background:rgba(255,16,16,0.2);
+    border:2px solid var(--redstone);
+    color:#fff;
+    font-family:'Minecraft',monospace;
+    font-size:14px;
+    width: 30px;
+    height: 30px;
+    display: flex; align-items: center; justify-content: center;
+    cursor:pointer;
+    text-shadow:1px 1px 0 #000;
+    transition: 0.2s;
+  }
+  .cart-item-remove:hover { background:var(--redstone); }
+  
+  .cart-footer {
+    padding:20px;
+    border-top:3px solid #000;
+    background: var(--obsidian);
+  }
+  .cart-total {
+    font-family:'Minecraft',monospace;
+    font-size:18px;
+    color:var(--gold);
+    text-shadow:2px 2px 0 #000;
+    margin-bottom:14px;
+    display:flex; justify-content:space-between;
+  }
+
+  /* ---- TOAST ---- */
+  .toast-container {
+    position:fixed; bottom:24px; right:24px; z-index:300;
+    display:flex; flex-direction:column; gap:8px;
+  }
+  .toast {
+    font-family:'Minecraft',monospace;
+    font-size:13px;
+    padding:12px 20px;
+    background:var(--primary);
+    border:3px solid #000;
+    color:#fff;
+    text-shadow:1px 1px 0 #000;
+    box-shadow: inset -2px -2px 0 rgba(0,0,0,0.3), inset 2px 2px 0 rgba(255,255,255,0.15);
+    animation: toastIn 0.3s ease, toastOut 0.3s ease 2.5s forwards;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.error { background: var(--redstone); }
+  @keyframes toastIn { from { transform:translateX(100px); opacity:0; } to { transform:translateX(0); opacity:1; } }
+  @keyframes toastOut { from { opacity:1; } to { opacity:0; transform:translateY(20px); } }
+
+  /* ---- FOOTER ---- */
+  footer {
+    background: var(--obsidian);
+    border-top: 3px solid var(--primary);
+    padding: 40px 24px;
+    text-align: center;
+  }
+  footer .footer-logo {
+    font-family:'Minecraft',monospace;
+    font-size:20px;
+    color:var(--accent);
+    text-shadow:2px 2px 0 #000;
+    margin-bottom:8px;
+  }
+  footer p { font-size:12px; color:var(--text-dim); }
+  footer a { color: var(--primary); text-decoration: none; }
+  footer a:hover { text-decoration: underline; }
+
+  /* ---- SCROLLBAR ---- */
+  ::-webkit-scrollbar { width:8px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--stone-dark); border:1px solid #000; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--primary); }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width:768px) {
+    .nav-links { 
+      display:none; 
+      position: absolute;
+      top: 64px;
+      left: 0;
+      right: 0;
+      background: rgba(11,12,21,0.98);
+      flex-direction: column;
+      padding: 16px;
+      border-bottom: 3px solid var(--primary);
+    }
+    .nav-links.open { display:flex; }
+    .mobile-menu-btn { display:block; }
+    .donate-grid { grid-template-columns:1fr; }
+    .reviews-grid { grid-template-columns:1fr; }
+    .stats { flex-direction: column; gap: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <span class="pickaxe">⛏</span> PIXEL<span style="color: var(--primary)">NOVA</span>
+  </div>
+  <div class="nav-links" id="navLinks">
+    <a href="#donate">Донат</a>
+    <a href="#reviews">Отзывы</a>
+    <a href="#support">Поддержка</a>
+    <button class="cart-btn" onclick="toggleCart()">
+      🛒 Корзина <span class="cart-badge" id="cartBadge">0</span>
+    </button>
+  </div>
+  <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" style="max-width:none; padding-left:0; padding-right:0;">
+  <div class="hero-bg"></div>
+  <div class="hero-particles" id="particles"></div>
+  <div class="hero-content">
+    <div class="hero-title">PIXEL<span>NOVA</span></div>
+    <div class="hero-sub">
+      Уникальный Minecraft сервер с экономикой и PvP<br>
+      <span class="ip" onclick="copyIP()" id="ipBlock">🔗 play.pixelnova.ru — нажми чтобы скопировать</span>
+    </div>
+    <div class="hero-buttons">
+      <button class="mc-btn primary" onclick="document.getElementById('donate').scrollIntoView({behavior:'smooth'})">💎 Привилегии</button>
+      <button class="mc-btn accent" onclick="document.getElementById('reviews').scrollIntoView({behavior:'smooth'})">⭐ Отзывы</button>
+      <button class="mc-btn diamond" onclick="document.getElementById('support').scrollIntoView({behavior:'smooth'})">🛟 Поддержка</button>
+    </div>
+    <div class="stats">
+      <div class="stat-item"><h4>1,500+</h4><span>Онлайн</span></div>
+      <div class="stat-item"><h4>50k+</h4><span>Игроков</span></div>
+      <div class="stat-item"><h4>24/7</h4><span>Аптайм</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- DONATE -->
+<section id="donate">
+  <div class="section-title"><span class="gold">💰</span> <span class="cyan">МАГАЗИН</span> <span class="purple">ПРИВИЛЕГИЙ</span></div>
+  <div class="section-sub">Платежи проходят мгновенно. Привилегия выдается навсегда.</div>
+  <div class="section-line"></div>
+  <div class="donate-grid" id="donateGrid"></div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="section-title"><span class="gold">⭐</span> <span class="gold">ОТЗЫВЫ</span> <span class="cyan">ИГРОКОВ</span></div>
+  <div class="section-line"></div>
+  <div class="reviews-grid" id="reviewsGrid"></div>
+</section>
+
+<!-- SUPPORT -->
+<section id="support">
+  <div class="section-title"><span class="diamond-c">🛟</span> <span class="purple">ПОДДЕРЖКА</span></div>
+  <div class="section-line"></div>
+  <div class="support-grid">
+    <div class="support-card">
+      <div class="support-icon phone">📞</div>
+      <div class="support-label">Телефон</div>
+      <div class="support-value"><a href="tel:+79654789141">+7 965 478 91 41</a></div>
+    </div>
+    <div class="support-card">
+      <div class="support-icon vk" style="background:#0077FF;">💬</div>
+      <div class="support-label">ВКонтакте</div>
+      <div class="support-value"><a href="https://vk.com/pixelnova" target="_blank">vk.com/pixelnova</a></div>
+    </div>
+    <div class="support-card">
+      <div class="support-icon tg">✈️</div>
+      <div class="support-label">Telegram</div>
+      <div class="support-value"><a href="https://t.me/pixelnova" target="_blank">@pixelnova</a></div>
+    </div>
+    <div class="support-card">
+      <div class="support-icon dc">🎮</div>
+      <div class="support-label">Discord</div>
+      <div class="support-value"><a href="https://discord.gg/pixelnova" target="_blank">discord.gg/pixelnova</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">⛏ PIXELNOVA</div>
+  <p>© 2025 PixelNova. Все права защищены.</p>
+  <p style="margin-top:4px;">Не является продуктом Mojang AB | <a href="#">Публичная оферта</a> | <a href="#">Политика конфиденциальности</a></p>
+</footer>
+
+<!-- CART OVERLAY & SIDEBAR -->
+<div class="cart-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+<div class="cart-sidebar" id="cartSidebar">
+  <div class="cart-header">
+    <h3>🛒 Корзина</h3>
+    <button class="cart-close" onclick="toggleCart()">✕</button>
+  </div>
+  <div class="cart-items" id="cartItems">
+    <div class="cart-empty">
+      <div class="cart-empty-icon">👻</div>
+      Корзина пуста...<br>Купите хоть что-нибудь!
+    </div>
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Итого:</span>
+      <span id="cartTotal">0 ₽</span>
+    </div>
+    <button class="mc-btn gold" style="width:100%; text-align:center;" onclick="checkout()">💎 Оформить заказ</button>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast-container" id="toastContainer"></div>
+
+<script>
+// ---- DATA ----
+const donateItems = [
+  {
+    id: 'vip',
+    rank: 'VIP',
+    price: 49,
+    icon: '🪓',
+    color: 'vip',
+    tag: 'Начальный уровень',
+    perks: ['Префикс [VIP] в чате', 'Полёт (/fly)', 'Набор ресурсов (/kit vip)', 'Вход на переполненный сервер', 'Сохранение инвентаря']
+  },
+  {
+    id: 'premium',
+    rank: 'PREMIUM',
+    price: 149,
+    icon: '💎',
+    color: 'premium',
+    tag: 'Продвинутый игрок',
+    perks: ['Все возможности VIP', 'Режим бога (/god)', 'Починка вещей (/repair)', 'Смена времени (/time)', '3 привата региона']
+  },
+  {
+    id: 'legend',
+    rank: 'LEGEND',
+    price: 299,
+    icon: '👑',
+    color: 'legend',
+    tag: '🔥 Хит продаж',
+    featured: true,
+    perks: ['Все возможности PREMIUM', 'Ванш (бессмертие) раз в час', 'Телепортация (/tp)', 'Установка 5 точек дома', 'Цветной ник в табе', 'Доступ к WorldEdit (ограниченный)']
+  },
+  {
+    id: 'ultimate',
+    rank: 'ULTIMATE',
+    price: 599,
+    icon: '🔥',
+    color: 'ultimate',
+    tag: 'Полный контроль',
+    perks: ['Все возможности LEGEND', 'Смена скина (/skin)', 'Бан и мут игроков', 'Включение спавна мобов', 'Превращение в моба (/disguise)']
+  }
+];
+
+const reviewsData = [
+  { name:'Steve_Builder', rank:'vip', icon:'steve', emoji:'🧑', stars:5, text:'Отличный сервер! Купил VIP — всё работает стабильно. Админы адекватные.', date:'12.01.2025' },
+  { name:'Alex_Miner', rank:'premium', icon:'alex', emoji:'👩', stars:5, text:'Премиум стоит каждой копейки! /god спасает в PvP, а починка вещей просто огонь 🔥', date:'08.01.2025' },
+  { name:'EnderDragonX', rank:'legend', icon:'enderman', emoji:'👾', stars:5, text:'Легенда — топ за свои деньги. WorldEdit экономит часы строительства. Лучший донат!', date:'03.01.2025' },
+  { name:'CreeperBoom', rank:'ultimate', icon:'creeper', emoji:'💥', stars:5, text:'Ультимейт — максимум привилегий. Превращение в моба — это весело!', date:'28.12.2024' },
+  { name:'ZombieKing', rank:'premium', icon:'zombie', emoji:'🧟', stars:4, text:'Взял Премиум — не жалею. Приваты региона очень помогают. Минус 1 звезда — хочу больше китов.', date:'22.12.2024' },
+  { name:'SkeleArcher', rank:'vip', icon:'skeleton', emoji:'💀', stars:4, text:'Хороший стартовый донат. VIP даёт всё необходимое для комфортной игры. Рекомендую новичкам!', date:'15.12.2024' }
+];
+
+// ---- RENDER DONATE ----
+const donateGrid = document.getElementById('donateGrid');
+donateItems.forEach(item => {
+  const card = document.createElement('div');
+  card.className = `donate-card ${item.featured ? 'featured' : ''}`;
+  card.innerHTML = `
+    <div class="card-top ${item.color}"></div>
+    <div class="card-icon">${item.icon}</div>
+    <div class="card-rank" style="color:${getColor(item.color)}">${item.rank}</div>
+    <div class="card-tag" style="color:${getColor(item.color)}">${item.tag}</div>
+    <div class="card-price">${item.price} ₽ <span>/ навсегда</span></div>
+    <ul class="card-perks">
+      ${item.perks.map(p => `<li><iconify-icon icon="mdi:check-bold"></iconify-icon>${p}</li>`).join('')}
+    </ul>
+    <button class="mc-btn green card-buy" onclick="addToCart('${item.id}')">🛒 В корзину</button>
+  `;
+  donateGrid.appendChild(card);
+});
+
+function getColor(c) {
+  const map = {vip:'var(--grass)', premium:'var(--diamond)', legend:'#ffd700', ultimate:'#ff00ea'};
+  return map[c]||'#fff';
+}
+
+// ---- RENDER REVIEWS ----
+const reviewsGrid = document.getElementById('reviewsGrid');
+reviewsData.forEach(r => {
+  const card = document.createElement('div');
+  card.className = 'review-card';
+  card.innerHTML = `
+    <div class="review-header">
+      <div class="review-avatar ${r.icon}">${r.emoji}</div>
+      <div>
+        <div class="review-name">${r.name}</div>
+        <span class="review-rank ${r.rank}">${r.rank.toUpperCase()}</span>
+      </div>
+    </div>
+    <div class="review-stars">${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)}</div>
+    <div class="review-text">«${r.text}»</div>
+    <div class="review-date">${r.date}</div>
+  `;
+  reviewsGrid.appendChild(card);
+});
+
+// ---- PARTICLES ----
+const particlesEl = document.getElementById('particles');
+for(let i=0;i<30;i++){
+  const p = document.createElement('div');
+  p.className='particle';
+  p.style.left = Math.random()*100+'%';
+  p.style.animationDuration = (8+Math.random()*12)+'s';
+  p.style.animationDelay = Math.random()*10+'s';
+  p.style.width = p.style.height = (4+Math.random()*8)+'px';
+  p.style.background = ['var(--accent)','var(--gold)','var(--primary)'][Math.floor(Math.random()*3)];
+  particlesEl.appendChild(p);
+}
+
+// ---- CART LOGIC ----
+let cart = [];
+
+function addToCart(id) {
+  const item = donateItems.find(d=>d.id===id);
+  if(!item) return;
+  
+  // Проверка, есть ли уже этот ранг в корзине
+  if(cart.find(c=>c.id===id)) {
+    showToast('⚠️ '+item.rank+' уже в корзине!', true);
+    return;
+  }
+  
+  cart.push({...item});
+  updateCart();
+  showToast('✅ '+item.rank+' добавлен в корзину!');
+  openCart(); // Открываем корзину при добавлении
+}
+
+function removeFromCart(id) {
+  const item = cart.find(c=>c.id===id);
+  cart = cart.filter(c=>c.id!==id);
+  updateCart();
+  if(item) showToast('🗑️ '+item.rank+' удален из корзины', true);
+}
+
+function updateCart() {
+  const badge = document.getElementById('cartBadge');
+  const items = document.getElementById('cartItems');
+  const total = document.getElementById('cartTotal');
+  
+  // Обновляем бейдж
+  badge.textContent = cart.length;
+  if(cart.length > 0) {
+    badge.classList.add('active');
+  } else {
+    badge.classList.remove('active');
+  }
+  
+  // Обновляем сумму
+  const sum = cart.reduce((s,c)=>s+c.price,0);
+  total.textContent = sum + ' ₽';
+  
+  // Рендерим товары
+  if(cart.length===0){
+    items.innerHTML=`
+      <div class="cart-empty">
+        <div class="cart-empty-icon">👻</div>
+        Корзина пуста...<br>Купите хоть что-нибудь!
+      </div>
+    `;
+    return;
+  }
+  
+  items.innerHTML = cart.map(c=>`
+    <div class="cart-item">
+      <div>
+        <div class="cart-item-info">${c.icon} ${c.rank}</div>
+        <div class="cart-item-price">${c.price} ₽</div>
+      </div>
+      <button class="cart-item-remove" onclick="removeFromCart('${c.id}')">✕</button>
+    </div>
+  `).join('');
+}
+
+function toggleCart() {
+  document.getElementById('cartOverlay').classList.toggle('open');
+  document.getElementById('cartSidebar').classList.toggle('open');
+}
+
+function openCart() {
+  document.getElementById('cartOverlay').classList.add('open');
+  document.getElementById('cartSidebar').classList.add('open');
+}
+
+function checkout() {
+  if(cart.length===0){ 
+    showToast('❌ Корзина пуста!', true); 
+    return; 
+  }
+  const sum = cart.reduce((s,c)=>s+c.price,0);
+  const names = cart.map(c=>c.rank).join(', ');
+  showToast('🎉 Оформление: ' + names + ' на ' + sum + ' ₽');
+  cart=[];
+  updateCart();
+  setTimeout(()=>toggleCart(), 1500);
+}
+
+// ---- COPY IP ----
+function copyIP(){
+  navigator.clipboard.writeText('play.pixelnova.ru').then(()=>{
+    const el=document.getElementById('ipBlock');
+    el.textContent='✅ Скопировано!';
+    setTimeout(()=>{ el.textContent='🔗 play.pixelnova.ru — нажми чтобы скопировать'; },2000);
+  });
+}
+
+// ---- TOAST ----
+function showToast(msg, isError=false){
+  const c=document.getElementById('toastContainer');
+  const t=document.createElement('div');
+  t.className='toast' + (isError ? ' error' : '');
+  t.textContent=msg;
+  c.appendChild(t);
+  setTimeout(()=>t.remove(),3000);
+}
+
+// ---- MOBILE MENU ----
+function toggleMenu(){
+  document.getElementById('navLinks').classList.toggle('open');
+}
+
+// Инициализация корзины
+updateCart();
+</script>
+</body>
+</html>
